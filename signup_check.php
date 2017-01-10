@@ -73,7 +73,6 @@
        <div class="container" >
         <h1>STSS 회원가입</h1>
 
-
         <?php
 
           //email, password, passwordconfirm 받고 password==passwordconfirm인지 확인
@@ -81,44 +80,62 @@
           $received_password=$_POST['pwd'];
           $received_password_confirm=$_POST['pwdconfirm'];
 
-          //password==passwordconfirm인 경우에만 DB 저장
-          if(strcmp($received_password,$received_password_confirm)==0){
+          //mysql 연결
+          $conn=mysqli_connect('localhost','root','znfnfn1002');
 
-            //회원가입 축하 메세지 출력
-            ?>
-            <img src="checked.png" alt="checked" >
-            <?php
+          //DB연결 체크
+          if(!$conn){
+            die('Could not connect : '.mysql_error);
+          }
 
-            echo '<p style="color: #41ad49; text-align: center"> 환영합니다 ! </p>';
+          //이미 존재하는 이메일인지 체크
+          mysqli_select_db($conn,'wybwyt');
+          $sql="SELECT * FROM users WHERE email='".$received_email."'";
+          $result=mysqli_query($conn,$sql);
+          $row=mysqli_fetch_assoc($result);
 
-            //mysql 연결
-            $conn=mysqli_connect('localhost','root','znfnfn1002');
-
-            if(!$conn){
-              die('Could not connect : '.mysql_error);
-            }
-
-            //DB 선택
-            mysqli_select_db($conn,'wybwyt');
-
-            //쿼리문
-            $sql="INSERT INTO users (`email`,`password`) VALUES('".$received_email."','".$received_password."')";
-            mysqli_query($conn,$sql);
+          ?>
+          <img src="unchecked.png" alt="unchecked">
+          <?php
+          if($row){
+            echo '<p style="color: #e44061; text-align: center"> 이미 존재하는 이메일입니다. </p>';
           }
           else{
-            ?>
-            <img src="unchecked.png" alt="unchecked">
+            //password==passwordconfirm인 경우에만 DB 저장
+            if(strcmp($received_password,$received_password_confirm)==0){
 
-            <?php
-            //비밀번호 확인하라는 메세지 출력
-            echo '<p style="color: #e44061; text-align: center"> 비밀번호를 다시 확인해주세요. </p>';
+              ?>
+              <!--회원가입 축하 메세지 출력-->
+              <img src="checked.png" alt="checked" >
+              <?php
+              echo '<p style="color: #41ad49; text-align: center"> 환영합니다 ! </p>';
+
+              //DB연결 체크
+              if(!$conn){
+                die('Could not connect : '.mysql_error);
+              }
+
+              //DB 선택
+              mysqli_select_db($conn,'wybwyt');
+
+              //쿼리문
+              $sql="INSERT INTO users (`email`,`password`) VALUES('".$received_email."','".$received_password."')";
+              mysqli_query($conn,$sql);
+            }
+            else{
+              ?>
+              <img src="unchecked.png" alt="unchecked">
+
+              <?php
+              //비밀번호 확인하라는 메세지 출력
+              echo '<p style="color: #e44061; text-align: center"> 비밀번호를 다시 확인해주세요. </p>';
+            }
           }
+
+
 
          ?>
       </body>
-
-
-
       </div>
     </div>
   </body>
